@@ -1,7 +1,8 @@
 #!/usr/bin/env gmake -f
 
 BUILDOPTS=-ldflags="-s -w" -a -gcflags=all=-l -trimpath -pgo=auto
-FILELIST=main.go
+FILELIST=bf.go main.go norm_string.go
+RMFILE=data/data.bin
 
 BINARY=bf
 
@@ -23,8 +24,10 @@ define IFS
 
 endef
 
+
 ## Используем классические таргеты, где первый встречаемый является таргетом по-умолчанию
-all: clean build
+all: clean-bin build
+
 
 ## Этот таргет собирает бинарь
 build:
@@ -45,8 +48,25 @@ else
 endif
 
 
-## Удаляем бинарник средствами go
+## Удаляем нагенеренные данные и бинарник
 clean:
+ifeq ($(OS),Windows_NT)
+# вариант с jetbrains golang на windows, powershell на windows
+ifeq ($(SHELL),sh.exe)
+	if exist ${RMFILE} del /F /S /Q ${RMFILE} >nul
+# git/bash на windows
+else
+	$(RM) ${RMFILE}
+endif
+# bash на linux
+else
+	$(RM) ${RMFILE}
+endif
+	go clean
+
+
+## Удаляем только бинарник
+clean-bin:
 	go clean
 
 
